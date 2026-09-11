@@ -46,23 +46,21 @@ fun CityListScreen(cities: List<String>,
                    modifier: Modifier = Modifier){
 
     var newCityName by remember {mutableStateOf("")}
+    var cityStateAdd: Boolean = false
+
+
 
     Column(modifier = modifier.fillMaxSize()){
         Row(modifier = Modifier.padding(16.dp)){
             OutlinedTextField(
                 value = newCityName,
                 onValueChange = {newCityName = it},
-                label = { Text("City name")},
+                label = { Text("Type Here")},
                 modifier = Modifier.weight(1f)
             )
 
             Button(
-                onClick = {
-                    if (newCityName.isNotBlank()){
-                        onAddCity(newCityName) // Why not just call the function cityRepositoryObject.addCity() here??
-                        newCityName = ""
-                    }
-                }
+                onClick = { cityStateAdd = true }
             ){
                 Text("Add City")
             }
@@ -79,23 +77,42 @@ fun CityListScreen(cities: List<String>,
             }
         }
 
+        Row(modifier = Modifier.padding(16.dp)){
+            Button(
+                onClick = {
+                    if (newCityName.isNotBlank() && cityStateAdd){
+                        onAddCity(newCityName) // Why not just call the function cityRepositoryObject.addCity() here??
+                        cityStateAdd = false
+                    }
+                }
+            ){
+                Text("Confirm")
+            }
+        }
+
         LazyColumn(modifier = Modifier.fillMaxSize()){
             items(cities) { // re-executes the code again when a new item is added/removed
-                city -> CityRow(city = city)
+                city -> CityRow(city = city, onRemoveCity)
             }
         }
     }
 }
 
 @Composable
-fun CityRow(city: String){
-    Text(
-        text = city,
-        fontSize = 28.sp,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal=18.dp, vertical=14.dp)
-    )
+fun CityRow(city: String, onRemoveCity: (String) -> Unit){
+    Button(
+        onClick = {
+           onRemoveCity(city)
+        }
+    ){
+        Text(
+            text = city,
+            fontSize = 28.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal=18.dp, vertical=14.dp)
+        )
+    }
 }
 
 class CityRepository {
@@ -112,5 +129,8 @@ class CityRepository {
     fun removeCity(cityName: String): Unit {
         _cities.remove(cityName)
     }
+
 }
+
+
 
